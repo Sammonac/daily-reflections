@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Reflections</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.active {
+            background: #34C759;
+        }
+
+        .screen {
+            display: none;
+            padding: 30px 20px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .screen-title {
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1a1a1a;
+        }
+
+        .rating-group {
+            margin-bottom: 25px;
+        }
+
+        .rating-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .slider-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #007AFF;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #007AFF;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 5px;
+            font-weight: 600;
+            color: #007AFF;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #007AFF;
+        }
+
+        .optional-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .optional-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .optional-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .optional-btn:hover {
+            border-color: #007AFF;
+            background: #f0f8ff;
+        }
+
+        .emoji-picker {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .emoji-picker.active {
+            display: block;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .emoji-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .emoji-btn:hover {
+            background: #e9ecef;
+        }
+
+        .save-btn {
+            width: 100%;
+            background: #34C759;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        .save-btn:hover {
+            background: #28a745;
+        }
+
+        .save-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .summary-stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-bar {
+            flex: 1;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .stat-fill.health { background: #34C759; }
+        .stat-fill.wealth { background: #FF9500; }
+        .stat-fill.love { background: #FF2D92; }
+
+        .summary-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+
+        .daily-entries {
+            margin-top: 20px;
+        }
+
+        .daily-entry {
+            padding: 15px;
+            border-left: 4px solid #007AFF;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .entry-date {
+            font-weight: 600;
+            color: #007AFF;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .entry-text {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .entry-ratings {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .current-date {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .selected-emoji {
+            margin-left: 10px;
+            font-size: 20px;
+        }
+
+        .no-entries {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="nav-btn active" id="dailyBtn">Daily Entry</button>
+            <div class="current-date" id="currentDate"></div>
+            <button class="nav-btn" id="summaryBtn">Weekly Summary</button>
+        </div>
+
+        <!-- Daily Entry Screen -->
+        <div class="screen active" id="dailyScreen">
+            <h2 class="screen-title">How was your day?</h2>
+            
+            <div class="rating-group">
+                <div class="rating-label">
+                    <span>😷 Health</span>
+                    <span>😊</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" min="1" max="10" value="5" class="slider" id="healthSlider">
+                    <div class="slider-value" id="healthValue">5</div>
+                </div>
+            </div>
+
+            <div class="rating-group">
+                <div class="rating-label">
+                    <span>💸 Wealth</span>
+                    <span>💰</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" min="1" max="10" value="5" class="slider" id="wealthSlider">
+                    <div class="slider-value" id="wealthValue">5</div>
+                </div>
+            </div>
+
+            <div class="rating-group">
+                <div class="rating-label">
+                    <span>💔 Love</span>
+                    <span>❤️</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" min="1" max="10" value="5" class="slider" id="loveSlider">
+                    <div class="slider-value" id="loveValue">5</div>
+                </div>
+            </div>
+
+            <textarea class="text-input" id="dailyText" placeholder="One sentence about today..."></textarea>
+
+            <div class="optional-section">
+                <p>Optional:</p>
+                <div class="optional-buttons">
+                    <button class="optional-btn" id="emojiBtn">😊 Add Mood</button>
+                    <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                    <button class="optional-btn" id="photoBtn">📷 Photo</button>
+                </div>
+                
+                <div class="emoji-picker" id="emojiPicker">
+                    <p>Select your mood:</p>
+                    <div class="emoji-grid">
+                        <button class="emoji-btn" data-emoji="😊">😊</button>
+                        <button class="emoji-btn" data-emoji="😢">😢</button>
+                        <button class="emoji-btn" data-emoji="😴">😴</button>
+                        <button class="emoji-btn" data-emoji="🥳">🥳</button>
+                        <button class="emoji-btn" data-emoji="😌">😌</button>
+                        <button class="emoji-btn" data-emoji="😤">😤</button>
+                        <button class="emoji-btn" data-emoji="🤗">🤗</button>
+                        <button class="emoji-btn" data-emoji="😎">😎</button>
+                        <button class="emoji-btn" data-emoji="🤔">🤔</button>
+                        <button class="emoji-btn" data-emoji="😇">😇</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="save-btn" id="saveBtn">Save Entry</button>
+        </div>
+
+        <!-- Weekly Summary Screen -->
+        <div class="screen" id="summaryScreen">
+            <h2 class="screen-title">Your Week at a Glance</h2>
+            
+            <div class="summary-stats" id="summaryStats">
+                <div class="stat-row">
+                    <span>Health</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill health" id="healthBar"></div>
+                    </div>
+                    <span id="healthAvg">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Wealth</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill wealth" id="wealthBar"></div>
+                    </div>
+                    <span id="wealthAvg">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Love</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill love" id="loveBar"></div>
+                    </div>
+                    <span id="loveAvg">0</span>
+                </div>
+            </div>
+
+            <div class="summary-text" id="summaryText">
+                Your weekly reflection will appear here...
+            </div>
+
+            <div class="daily-entries" id="dailyEntries">
+                <h3>Daily Snapshots</h3>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // In-memory storage (replace with localStorage in your own environment)
+        let appData = {
+            entries: []
+        };
+
+        // To use localStorage instead, replace the storage functions below:
+        /*
+        function saveData() {
+            localStorage.setItem('dailyReflections', JSON.stringify(appData));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('dailyReflections');
+            if (saved) {
+                appData = JSON.parse(saved);
+            }
+        }
+        */
+
+        function saveData() {
+            // In-memory storage for demo
+            console.log('Data saved to memory:', appData);
+        }
+
+        function loadData() {
+            // Load from memory (already initialized)
+            console.log('Data loaded from memory:', appData);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            initializeSliders();
+            setupEventListeners();
+            updateCurrentDate();
+            checkForTodaysEntry();
+        });
+
+        function updateCurrentDate() {
+            const today = new Date();
+            const options = { month: 'short', day: 'numeric' };
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
+        }
+
+        function initializeSliders() {
+            const sliders = ['health', 'wealth', 'love'];
+            sliders.forEach(type => {
+                const slider = document.getElementById(`${type}Slider`);
+                const value = document.getElementById(`${type}Value`);
+                
+                slider.addEventListener('input', function() {
+                    value.textContent = this.value;
+                });
+            });
+        }
+
+        function setupEventListeners() {
+            // Navigation
+            document.getElementById('dailyBtn').addEventListener('click', () => switchScreen('daily'));
+            document.getElementById('summaryBtn').addEventListener('click', () => switchScreen('summary'));
+
+            // Daily entry
+            document.getElementById('saveBtn').addEventListener('click', saveEntry);
+            document.getElementById('emojiBtn').addEventListener('click', toggleEmojiPicker);
+            document.getElementById('photoBtn').addEventListener('click', () => {
+                document.getElementById('photoInput').click();
+            });
+
+            // Emoji selection
+            document.querySelectorAll('.emoji-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectEmoji(this.dataset.emoji);
+                });
+            });
+        }
+
+        function switchScreen(screen) {
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+
+            if (screen === 'daily') {
+                document.getElementById('dailyBtn').classList.add('active');
+                document.getElementById('dailyScreen').classList.add('active');
+            } else {
+                document.getElementById('summaryBtn').classList.add('active');
+                document.getElementById('summaryScreen').classList.add('active');
+                generateWeeklySummary();
+            }
+        }
+
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            picker.classList.toggle('active');
+        }
+
+        let selectedEmoji = '';
+        function selectEmoji(emoji) {
+            selectedEmoji = emoji;
+            document.getElementById('emojiBtn').innerHTML = `${emoji} Add Mood`;
+            document.getElementById('emojiPicker').classList.remove('active');
+        }
+
+        function checkForTodaysEntry() {
+            const today = new Date().toDateString();
+            const todaysEntry = appData.entries.find(entry => 
+                new Date(entry.date).toDateString() === today
+            );
+
+            if (todaysEntry) {
+                // Pre-fill form with today's entry
+                document.getElementById('healthSlider').value = todaysEntry.health;
+                document.getElementById('wealthSlider').value = todaysEntry.wealth;
+                document.getElementById('loveSlider').value = todaysEntry.love;
+                document.getElementById('dailyText').value = todaysEntry.text;
+                
+                ['health', 'wealth', 'love'].forEach(type => {
+                    document.getElementById(`${type}Value`).textContent = todaysEntry[type];
+                });
+
+                if (todaysEntry.emoji) {
+                    selectedEmoji = todaysEntry.emoji;
+                    document.getElementById('emojiBtn').innerHTML = `${todaysEntry.emoji} Add Mood`;
+                }
+
+                document.getElementById('saveBtn').textContent = 'Update Entry';
+            }
+        }
+
+        function saveEntry() {
+            const today = new Date();
+            const health = parseInt(document.getElementById('healthSlider').value);
+            const wealth = parseInt(document.getElementById('wealthSlider').value);
+            const love = parseInt(document.getElementById('loveSlider').value);
+            const text = document.getElementById('dailyText').value.trim();
+
+            if (!text) {
+                alert('Please write at least one sentence about your day.');
+                return;
+            }
+
+            const entry = {
+                date: today.toISOString(),
+                health,
+                wealth,
+                love,
+                text,
+                emoji: selectedEmoji
+            };
+
+            // Remove existing entry for today if it exists
+            const todayString = today.toDateString();
+            appData.entries = appData.entries.filter(entry => 
+                new Date(entry.date).toDateString() !== todayString
+            );
+
+            // Add new entry
+            appData.entries.push(entry);
+            appData.entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            saveData();
+
+            // Show success feedback
+            const btn = document.getElementById('saveBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Saved! ✓';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }, 2000);
+        }
+
+        function generateWeeklySummary() {
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+
+            const weekEntries = appData.entries.filter(entry => 
+                new Date(entry.date) >= weekAgo
+            );
+
+            if (weekEntries.length === 0) {
+                document.getElementById('summaryStats').innerHTML = '<p class="no-entries">No entries this week. Start journaling to see your weekly summary!</p>';
+                document.getElementById('summaryText').textContent = 'Write a few daily entries to generate your weekly reflection.';
+                document.getElementById('dailyEntries').innerHTML = '<h3>Daily Snapshots</h3><p class="no-entries">No entries yet this week.</p>';
+                return;
+            }
+
+            // Calculate averages
+            const healthAvg = (weekEntries.reduce((sum, entry) => sum + entry.health, 0) / weekEntries.length).toFixed(1);
+            const wealthAvg = (weekEntries.reduce((sum, entry) => sum + entry.wealth, 0) / weekEntries.length).toFixed(1);
+            const loveAvg = (weekEntries.reduce((sum, entry) => sum + entry.love, 0) / weekEntries.length).toFixed(1);
+
+            // Update stats bars
+            document.getElementById('healthAvg').textContent = healthAvg;
+            document.getElementById('wealthAvg').textContent = wealthAvg;
+            document.getElementById('loveAvg').textContent = loveAvg;
+
+            document.getElementById('healthBar').style.width = `${(healthAvg / 10) * 100}%`;
+            document.getElementById('wealthBar').style.width = `${(wealthAvg / 10) * 100}%`;
+            document.getElementById('loveBar').style.width = `${(loveAvg / 10) * 100}%`;
+
+            // Generate summary text
+            const summary = generateSummaryText(weekEntries, healthAvg, wealthAvg, loveAvg);
+            document.getElementById('summaryText').textContent = summary;
+
+            // Display daily entries
+            displayDailyEntries(weekEntries);
+        }
+
+        function generateSummaryText(entries, healthAvg, wealthAvg, loveAvg) {
+            const categories = [
+                { name: 'health', avg: healthAvg, high: healthAvg >= 7, low: healthAvg <= 4 },
+                { name: 'wealth', avg: wealthAvg, high: wealthAvg >= 7, low: wealthAvg <= 4 },
+                { name: 'love', avg: loveAvg, high: loveAvg >= 7, low: loveAvg <= 4 }
+            ];
+
+            const highCategories = categories.filter(c => c.high).map(c => c.name);
+            const lowCategories = categories.filter(c => c.low).map(c => c.name);
+
+            let summary = `This week you journaled ${entries.length} ${entries.length === 1 ? 'day' : 'days'}. `;
+
+            if (highCategories.length > 0) {
+                summary += `You felt strongest in ${highCategories.join(' and ')}, `;
+            }
+
+            if (lowCategories.length > 0) {
+                summary += `while ${lowCategories.join(' and ')} ${lowCategories.length === 1 ? 'was' : 'were'} more challenging. `;
+            } else {
+                summary += 'maintaining good balance across all areas. ';
+            }
+
+            // Add insight based on entries
+            const commonWords = extractCommonThemes(entries);
+            if (commonWords.length > 0) {
+                summary += `Your reflections often mentioned ${commonWords.slice(0, 2).join(' and ')}, showing these were important themes for you this week.`;
+            }
+
+            return summary;
+        }
+
+        function extractCommonThemes(entries) {
+            const allWords = entries
+                .map(entry => entry.text.toLowerCase())
+                .join(' ')
+                .split(/\W+/)
+                .filter(word => word.length > 3 && !['this', 'that', 'with', 'have', 'been', 'were', 'from', 'they', 'will', 'said', 'each', 'which', 'their', 'time', 'about'].includes(word));
+
+            const wordCount = {};
+            allWords.forEach(word => {
+                wordCount[word] = (wordCount[word] || 0) + 1;
+            });
+
+            return Object.entries(wordCount)
+                .filter(([word, count]) => count > 1)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([word]) => word);
+        }
+
+        function displayDailyEntries(entries) {
+            const container = document.getElementById('dailyEntries');
+            const entriesHtml = entries
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(entry => {
+                    const date = new Date(entry.date);
+                    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                    const dayDate = date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+                    
+                    return `
+                        <div class="daily-entry">
+                            <div class="entry-date">${dayName} ${dayDate} ${entry.emoji || ''}</div>
+                            <div class="entry-text">"${entry.text}"</div>
+                            <div class="entry-ratings">
+                                Health: ${entry.health}/10 • Wealth: ${entry.wealth}/10 • Love: ${entry.love}/10
+                            </div>
+                        </div>
+                    `;
+                })
+                .join('');
+
+            container.innerHTML = `
+                <h3>Daily Snapshots</h3>
+                ${entriesHtml}
+            `;
+        }
+    </script>
+</body>
+</html>
